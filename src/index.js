@@ -6,82 +6,71 @@ import cloudyLogo from './cloudy-icon.png';
 import rainyLogo from './rainy-icon.png';
 import snowyLogo from './snowy-icon.png';
 var createReactClass = require('create-react-class');
-// https://api.openweathermap.org/data/2.5/forecast?q=Whitehorse,ca&appid=1f1128a9adbf296b8644ae2ac6f80fa1
 
 var Day = createReactClass({
     render: function() {
-        return <p><em>{this.props.day}</em></p>
+        return <p className="forecast-date"><em>{this.props.day}</em></p>
     }
 })
 
 var WeatherIcon = createReactClass({
     render: function() {
-        return <img src={this.props.icon} alt="Weather icon"/>
+        return <span className="weather-icon"><img src={this.props.icon} alt="Weather icon"/></span>
     }
 })
 
 var ForecastTemp = createReactClass({
     render: function() {
-        return <p><span>{this.props.highTemp}&#176;</span> <span className="singleday-low-temp"><em>{this.props.lowTemp}&#176;</em></span></p>
+        return <p className="singleday-temps"><span className="singleday-high-temp">{this.props.highTemp}&#176;</span> <span className="singleday-low-temp"><em>{this.props.lowTemp}&#176;</em></span></p>
     }
 })
 
 const weatherData = 'https://api.openweathermap.org/data/2.5/forecast?q=Whitehorse,ca&units=metric&appid=1f1128a9adbf296b8644ae2ac6f80fa1';
-
 const FiveDayForecast = [];
-// go to fetch documentation on mozilla developer network
-// JAN.17TH: this block of code also works but accessing the elements in FiveDayForecast array after doesn't work for some reason?
-fetch(weatherData)
-    .then(response => response.json())
-    .then(data => FiveDayForecast.push(data))
-    // .then(data => FiveDayForecast.push(data.list));
-// console.log(FiveDayForecast);
-// console.log(FiveDayForecast.length);
 
+async function retrieveWeatherData() {
+    try {
+        var response = await fetch(weatherData);
+        var json = await response.json();
+        var filteredJson = json.list.filter(dataEntry => (dataEntry.dt_txt.includes("00:00:00")));
+        FiveDayForecast.push(...filteredJson);
+        console.log("FiveDayForecast in async function:");
+        console.log(FiveDayForecast);
+        
+        // put data where I want it in the app
+        var singleDayForecasts = document.querySelectorAll('.single-day-forecast .singleday-temps');
+        var weatherIcons = document.querySelectorAll('.weather-icon');
+        var forecastDates = document.querySelectorAll('.forecast-date');
 
-function check_array (value) {
-    return Object.prototype.toString.apply(value) === '[object Array]';
+        for (let i = 0; i < FiveDayForecast.length; i++) {
+            singleDayForecasts[i].innerHTML = `<span className="singleday-high-temp">${FiveDayForecast[i].main.temp_max}&#176;</span> <span className="singleday-low-temp"><em>${FiveDayForecast[i].main.temp_min}&#176;</em></span>`;
+
+            var weatherIcon = FiveDayForecast[i].weather[0].main;
+            switch (weatherIcon) {
+                case "Clear":
+                    weatherIcons[i].innerHTML = `<img src=${sunnyLogo} className="weather-icon" alt="Weather icon"/>`
+                    break;
+                case "Clouds":
+                    weatherIcons[i].innerHTML = `<img src=${cloudyLogo} className="weather-icon" alt="Weather icon"/>`
+                    break;
+                case "Rain":
+                    weatherIcons[i].innerHTML = `<img src=${rainyLogo} className="weather-icon" alt="Weather icon"/>`
+                    break;
+                case "Snow":
+                    weatherIcons[i].innerHTML = `<img src=${snowyLogo} className="weather-icon" alt="Weather icon"/>`
+                    break;                                                        
+                default:
+                    weatherIcons[i].innerHTML = `<img src=${sunnyLogo} className="weather-icon" alt="Weather icon"/>`                            
+            }
+
+            forecastDates[i].innerHTML = `<em>${FiveDayForecast[i].dt_txt.split('00:00:00').join('')}</em>`;
+        }                
+
+    } catch(e) {
+        console.log("Data didn't load", e);
+    }
 }
-
-console.log(check_array(FiveDayForecast)); // outputs: true
-
-function findMatches(wordToMatch, weatherForecast) {
-    return weatherForecast.filter(dataEntry => {
-      // here we need to figure out if the city or state matches what was searched
-      const regex = new RegExp(wordToMatch, 'gi');
-      // going to return true and show the object if the city name or the state name matches what was searched
-      return dataEntry.dt_txt.match(regex);
-    });
-}
-
-// JAN.17TH: this function and the forecastByDay = displayMatches(); works just fine in the console but apparently doesn't work in the javascript for some reason? WTF?
-var forecastByDay = [];
-function displayMatches() {
-  const matchArray = findMatches("00:00:00", FiveDayForecast);
-  return matchArray;
-}
-forecastByDay = displayMatches();
-
-// for (let i = 0; i < FiveDayForecast.length; i++) {
-//     console.log(i);
-//     console.log(FiveDayForecast[i]);
-// }
-
-// FiveDayForecast.filter(dataEntry => (dataEntry.dt_txt.includes("00:00:00")));
-// const result = FiveDayForecast.filter(dataEntry => (dataEntry.dt_txt == "2019-01-18 00:00:00"));
-// console.log(result);
-  
-// console.log(FiveDayForecast);
-// console.log(FiveDayForecast[0]);
-// console.log(FiveDayForecast[6]);
-// console.log(FiveDayForecast[14]);
-// console.log(FiveDayForecast[22]);
-// console.log(FiveDayForecast[30]);
-    // .then(myJson => console.log(JSON.stringify(myJson)))
-    // .then(json => json[0]
-    //     .split('. ')
-    //     .forEach(sentence => self.add(sentence.substring(0, 25))))
-// console.log(FiveDayForecast.list)
+retrieveWeatherData();
 
 class SingleDayForecast extends React.Component {
     render() {
@@ -94,7 +83,10 @@ class SingleDayForecast extends React.Component {
       );
     }
   }
-  
+ // on page load, grab weather data and convert it to json using fetch. 
+ // Update the each SingleDayForecast component's props objects to be new values
+ // Rerender the ReactDOM asynch way
+var a = 18;
 ReactDOM.render(<div className="five-day-forecast">
                     <SingleDayForecast day="Mon" icon={sunnyLogo} lowTemp={14} highTemp={20} />
                     <SingleDayForecast day="Tue" icon={cloudyLogo} lowTemp={10} highTemp={14} />
