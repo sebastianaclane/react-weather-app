@@ -25,7 +25,7 @@ var ForecastTemp = createReactClass({
     }
 })
 
-const weatherData = 'https://api.openweathermap.org/data/2.5/forecast?q=Whitehorse,ca&units=metric&appid=1f1128a9adbf296b8644ae2ac6f80fa1';
+const weatherData = 'https://api.openweathermap.org/data/2.5/forecast?q=Whitehorse,ca&units=metric&appid={myapikey}';
 const FiveDayForecast = [];
 
 async function retrieveWeatherData() {
