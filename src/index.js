@@ -25,7 +25,7 @@ var ForecastTemp = createReactClass({
     }
 })
 
-const weatherData = 'https://api.openweathermap.org/data/2.5/forecast?q=Whitehorse,ca&units=metric&appid={myapikey}';
+const weatherData = 'https://api.openweathermap.org/data/2.5/forecast?q=Whitehorse,ca&units=metric&appid=1f1128a9adbf296b8644ae2ac6f80fa1';
 const FiveDayForecast = [];
 
 async function retrieveWeatherData() {
@@ -70,15 +70,30 @@ async function retrieveWeatherData() {
         console.log("Data didn't load", e);
     }
 }
-retrieveWeatherData();
+// retrieveWeatherData();
 
 class SingleDayForecast extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            day: "Day of the week",
+            weatherIcon: {sunnyLogo},
+            temp: {
+                highTemp: 0,
+                lowTemp: 0
+            }
+        }
+    }
+
     render() {
       return (
               <div className="single-day-forecast">
-                <Day day={this.props.day} />
-                <WeatherIcon icon={this.props.icon} />
-                <ForecastTemp lowTemp={this.props.lowTemp} highTemp={this.props.highTemp} />
+                <Day day={this.state.day} />
+                <WeatherIcon icon={this.state.icon} />
+                <ForecastTemp
+                    lowTemp={this.state.temp.lowTemp}
+                    highTemp={this.state.temp.highTemp}
+                />
               </div>
       );
     }
