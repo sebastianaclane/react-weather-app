@@ -77,7 +77,7 @@ class SingleDayForecast extends React.Component {
         super(props);
         this.state = {
             day: "Day of the week",
-            weatherIcon: {sunnyLogo},
+            weatherIcon: `${sunnyLogo}`,
             temp: {
                 highTemp: 0,
                 lowTemp: 0
@@ -89,7 +89,7 @@ class SingleDayForecast extends React.Component {
       return (
               <div className="single-day-forecast">
                 <Day day={this.state.day} />
-                <WeatherIcon icon={this.state.icon} />
+                <WeatherIcon icon={this.state.weatherIcon} />
                 <ForecastTemp
                     lowTemp={this.state.temp.lowTemp}
                     highTemp={this.state.temp.highTemp}
