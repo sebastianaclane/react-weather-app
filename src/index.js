@@ -25,32 +25,38 @@ var ForecastTemp = createReactClass({
     }
 })
 
-var GetWeatherForecast = createReactClass({
-    render: function() {
-        return <button className="get-weather-forecast-button" onClick={() => this.props.handleClick()}>
-          Get Weather Forecast
-        </button>
-    }
-})
-
 class SingleDayForecast extends Component {
+    render() {
+      return (
+              <div className="single-day-forecast">
+                <Day day={this.props.day} />
+                <WeatherIcon icon={this.props.icon} />
+                <ForecastTemp
+                    lowTemp={this.props.lowTemp}
+                    highTemp={this.props.highTemp}
+                />
+              </div>
+      );
+    }
+}
+
+class FiveDayForecast extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            day: "Day of the week",
-            weatherIcon: `${sunnyLogo}`,
-            temp: {
-                highTemp: 0,
-                lowTemp: 0
-            }
-        }
+            daysOfTheWeek: Array(5).fill('Day of the week'),
+            weatherIcons: Array(5).fill(`${sunnyLogo}`),
+            temps: Array(5).fill({
+                    highTemp: 0,
+                    lowTemp: 0
+                })
+        } 
     }
 
     handleClick = async () => {
         try {
             const weatherData = 'https://api.openweathermap.org/data/2.5/forecast?q=Whitehorse,ca&units=metric&appid=1f1128a9adbf296b8644ae2ac6f80fa1';
             const FiveDayForecast = [];
-            
             var response = await fetch(weatherData);
             var json = await response.json();
             var filteredJson = json.list.filter(dataEntry => (dataEntry.dt_txt.includes("00:00:00")));
@@ -58,70 +64,93 @@ class SingleDayForecast extends Component {
             console.log("FiveDayForecast in async function:");
             console.log(FiveDayForecast);
 
-            console.log('this = ' + this);
+            // collect data to put into state
+            const { daysOfTheWeek, weatherIcons, temps } = this.state;
             for (let i = 0; i < FiveDayForecast.length; i++) {
-                this.setState({
-                    day: FiveDayForecast[i].dt_txt.split('00:00:00').join(''),
-                    temp: {
-                        highTemp: FiveDayForecast[i].main.temp_max,
-                        lowTemp: FiveDayForecast[i].main.temp_min
-                    }
-                });
-                var weatherIcon = FiveDayForecast[i].weather[0].main;
+                daysOfTheWeek[i] = FiveDayForecast[i].dt_txt.split('00:00:00').join('');
+
+                let weatherIcon = FiveDayForecast[i].weather[0].main;
                 switch (weatherIcon) {
                     case "Clear":
-                        this.setState({
-                            weatherIcon: `${sunnyLogo}`
-                        });
+                        weatherIcons[i] = `${sunnyLogo}`;
                         break;
                     case "Clouds":
-                        this.setState({
-                            weatherIcon: `${cloudyLogo}`
-                        });
+                        weatherIcons[i] = `${cloudyLogo}`;
                         break;
                     case "Rain":
-                        this.setState({
-                            weatherIcon: `${rainyLogo}`
-                        });
+                        weatherIcons[i] = `${rainyLogo}`;
                         break;
                     case "Snow":
-                        this.setState({
-                            weatherIcon: `${snowyLogo}`
-                        });
+                        weatherIcons[i] = `${snowyLogo}`;
                         break;                                                        
                     default:
-                        this.setState({
-                            weatherIcon: `${sunnyLogo}`
-                        });                          
+                        weatherIcons[i] = `${sunnyLogo}`;                       
                 }
-            }        
+                console.log('blah');
+                console.log(temps[i])
+                temps[i].highTemp = FiveDayForecast[i].main.temp_max;
+                temps[i].lowTemp = FiveDayForecast[i].main.temp_min; 
+                console.log(FiveDayForecast[i].main.temp_max)
+                // console.log(FiveDayForecast[i].main.temp_min)
+                console.log(temps);           
+            }
+            console.log('DATA AFTER COLLECTING IT:')
+            console.log(daysOfTheWeek);
+            console.log(weatherIcons);
+            console.log(temps);
+            // put this new data into state
+            this.setState({
+                daysOfTheWeek, weatherIcons, temps
+            })
         } catch(e) {
             console.log("Data didn't load", e);
-        }        
+        }       
     }
 
     render() {
-      return (
-              <div className="single-day-forecast">
-                <Day day={this.state.day} />
-                <WeatherIcon icon={this.state.weatherIcon} />
-                <ForecastTemp
-                    lowTemp={this.state.temp.lowTemp}
-                    highTemp={this.state.temp.highTemp}
-                />
-                <button onClick={() => this.handleClick()}>Get Weather Forecast</button>
-              </div>
-      );
+        return (
+                <div>
+                    <div className="five-day-forecast">
+                        <SingleDayForecast
+                            day={this.state.daysOfTheWeek[0]}
+                            icon={this.state.weatherIcons[0]}
+                            lowTemp={this.state.temps[0].lowTemp}
+                            highTemp={this.state.temps[0].highTemp}
+                        />
+                        <SingleDayForecast
+                            day={this.state.daysOfTheWeek[1]}
+                            icon={this.state.weatherIcons[1]}
+                            lowTemp={this.state.temps[1].lowTemp}
+                            highTemp={this.state.temps[1].highTemp}
+                        /> 
+                        <SingleDayForecast
+                            day={this.state.daysOfTheWeek[2]}
+                            icon={this.state.weatherIcons[2]}
+                            lowTemp={this.state.temps[2].lowTemp}
+                            highTemp={this.state.temps[2].highTemp}
+                        /> 
+                        <SingleDayForecast
+                            day={this.state.daysOfTheWeek[3]}
+                            icon={this.state.weatherIcons[3]}
+                            lowTemp={this.state.temps[3].lowTemp}
+                            highTemp={this.state.temps[3].highTemp}
+                        /> 
+                        <SingleDayForecast
+                            day={this.state.daysOfTheWeek[4]}
+                            icon={this.state.weatherIcons[4]}
+                            lowTemp={this.state.temps[4].lowTemp}
+                            highTemp={this.state.temps[4].highTemp}
+                        />                                                                                              
+                        <div className="clear"></div>
+                    </div>
+                    <button onClick={() => this.handleClick()}>Get Weather Forecast</button>
+                </div>
+        );
     }
-  }
- // on page load, grab weather data and convert it to json using fetch. 
- // Update the each SingleDayForecast component's props objects to be new values
- // Rerender the ReactDOM asynch way
-ReactDOM.render(<div className="five-day-forecast">
-                    <SingleDayForecast day="Mon" icon={sunnyLogo} lowTemp={14} highTemp={20} />
-                    <SingleDayForecast day="Tue" icon={cloudyLogo} lowTemp={10} highTemp={14} />
-                    <SingleDayForecast day="Wed" icon={sunnyLogo} lowTemp={16} highTemp={23} />
-                    <SingleDayForecast day="Thu" icon={rainyLogo} lowTemp={8} highTemp={5} />
-                    <SingleDayForecast day="Fri" icon={snowyLogo} lowTemp={-2} highTemp={3} />
-                    <div className="clear"></div>                   
+}
+
+// -----------------
+
+ReactDOM.render(<div className="weather-app">
+                    <FiveDayForecast/>                
                 </div>, document.querySelector('#root'));

@@ -1,6 +1,15 @@
-.five-day-forecast {
+.weather-app {
     margin: 0 auto;
     width: 60%;
+}
+.weather-app button {
+    margin: 30px auto 0 auto;
+    display: block;
+    font-size: 20px;
+    color: #FFF;
+    background-color: blue;
+    border-radius: 5px;
+    border-color: blue;
 }
 .single-day-forecast {
     text-align: center;
