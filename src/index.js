@@ -6,14 +6,17 @@ import cloudyLogo from './cloudy-icon.png';
 import rainyLogo from './rainy-icon.png';
 import snowyLogo from './snowy-icon.png';
 
-function Day(props) {
+/** @function */
+function DayOfTheWeek(props) {
     return <p className="forecast-date"><em>{props.day}</em></p>
 }
 
+/** @function */
 function WeatherIcon(props) {
     return <span className="weather-icon"><img src={props.icon} alt="Weather icon"/></span>
 }
 
+/** @function */
 function ForecastTemp(props) {
     return <p className="singleday-temps">
             <span className="singleday-high-temp">{props.highTemp}&#176;</span>
@@ -21,11 +24,15 @@ function ForecastTemp(props) {
            </p>
 }
 
+/**
+ * @class 
+ * @classdesc Renders a single day's forecast which contains the date, the weather condition icon, and high and low temperatures
+*/
 class SingleDayForecast extends Component {
     render() {
       return (
               <div className="single-day-forecast">
-                <Day day={this.props.day} />
+                <DayOfTheWeek day={this.props.day} />
                 <WeatherIcon icon={this.props.icon} />
                 <ForecastTemp
                     lowTemp={this.props.lowTemp}
@@ -36,6 +43,10 @@ class SingleDayForecast extends Component {
     }
 }
 
+/**
+ * @class 
+ * @classdesc Renders 5 SingleDayForecast Components, holds all weather data in state, also fetches weather data
+*/
 class FiveDayForecast extends Component {
     constructor(props) {
         super(props);
@@ -49,28 +60,34 @@ class FiveDayForecast extends Component {
         } 
     }
 
+    /**
+     * @description fetches weather data into an array and updates the state variables with the new data
+     * @async
+    */
     handleClick = async () => {
         try {
-            const weatherData = 'https://api.openweathermap.org/data/2.5/forecast?q=Whitehorse,ca&units=metric&appid=1f1128a9adbf296b8644ae2ac6f80fa1';
+            // fetch weather data and push it to FiveDayForecast array
+            const weatherData = 'https://api.openweathermap.org/data/2.5/forecast?q=Whitehorse,ca&units=metric&appid={myapikey}';
             const FiveDayForecast = [];
             var response = await fetch(weatherData);
             var json = await response.json();
-            var filteredJson = json.list.filter(dataEntry => (dataEntry.dt_txt.includes("00:00:00")));
+            // filter the json data down to only weather data at 12pm for each day
+            var filteredJson = json.list.filter(dataEntry => (dataEntry.dt_txt.includes("12:00:00")));
             FiveDayForecast.push(...filteredJson);
 
-            const icons = {
+            const weatherIcons = {
                 Clear: `${sunnyLogo}`,
                 Clouds: `${cloudyLogo}`,
                 Rain: `${rainyLogo}`,
                 Snow: `${snowyLogo}`
             };
-            
+            // update state with new weather data
             this.setState({
                 daysOfTheWeek: FiveDayForecast.map(day =>
-                    day.dt_txt.split("00:00:00").join("")
+                    day.dt_txt.split("12:00:00").join("")
                 ),
                 weatherIcons: FiveDayForecast.map(
-                  icon => icons[icon.weather[0].main] || sunnyLogo
+                  icon => weatherIcons[icon.weather[0].main] || sunnyLogo
                 ),
                 temps: FiveDayForecast.map(temperature => {
                     return {
@@ -79,11 +96,15 @@ class FiveDayForecast extends Component {
                     }
                 })
               });
+            
         } catch(e) {
             console.log("Data didn't load", e);
         }       
     }
 
+    /**
+     * @description renders five SingleDayForecast componenets and a button that retrievs the weather data when clicked
+    */
     render() {
         return (
                 <div>
@@ -112,12 +133,12 @@ class FiveDayForecast extends Component {
                             lowTemp={this.state.temps[3].lowTemp}
                             highTemp={this.state.temps[3].highTemp}
                         /> 
-                        {/* <SingleDayForecast
+                        <SingleDayForecast
                             day={this.state.daysOfTheWeek[4]}
                             icon={this.state.weatherIcons[4]}
                             lowTemp={this.state.temps[4].lowTemp}
                             highTemp={this.state.temps[4].highTemp}
-                        />                          */}
+                        />                         
                         <div className="clear"></div>
                     </div>
                     <button onClick={() => this.handleClick()}>Get Weather Forecast</button>
