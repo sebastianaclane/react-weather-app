@@ -5,25 +5,21 @@ import sunnyLogo from './sunny-icon.png';
 import cloudyLogo from './cloudy-icon.png';
 import rainyLogo from './rainy-icon.png';
 import snowyLogo from './snowy-icon.png';
-var createReactClass = require('create-react-class');
 
-var Day = createReactClass({
-    render: function() {
-        return <p className="forecast-date"><em>{this.props.day}</em></p>
-    }
-})
+function Day(props) {
+    return <p className="forecast-date"><em>{props.day}</em></p>
+}
 
-var WeatherIcon = createReactClass({
-    render: function() {
-        return <span className="weather-icon"><img src={this.props.icon} alt="Weather icon"/></span>
-    }
-})
+function WeatherIcon(props) {
+    return <span className="weather-icon"><img src={props.icon} alt="Weather icon"/></span>
+}
 
-var ForecastTemp = createReactClass({
-    render: function() {
-        return <p className="singleday-temps"><span className="singleday-high-temp">{this.props.highTemp}&#176;</span> <span className="singleday-low-temp"><em>{this.props.lowTemp}&#176;</em></span></p>
-    }
-})
+function ForecastTemp(props) {
+    return <p className="singleday-temps">
+            <span className="singleday-high-temp">{props.highTemp}&#176;</span>
+            <span className="singleday-low-temp"><em>{props.lowTemp}&#176;</em></span>
+           </p>
+}
 
 class SingleDayForecast extends Component {
     render() {
@@ -61,32 +57,21 @@ class FiveDayForecast extends Component {
             var json = await response.json();
             var filteredJson = json.list.filter(dataEntry => (dataEntry.dt_txt.includes("00:00:00")));
             FiveDayForecast.push(...filteredJson);
-            console.log("FiveDayForecast in async function:");
-            console.log(FiveDayForecast);
+
+            const icons = {
+                Clear: `${sunnyLogo}`,
+                Clouds: `${cloudyLogo}`,
+                Rain: `${rainyLogo}`,
+                Snow: `${snowyLogo}`
+            };
             
             this.setState({
                 daysOfTheWeek: FiveDayForecast.map(day =>
                     day.dt_txt.split("00:00:00").join("")
                 ),
-                weatherIcons: FiveDayForecast.map(weatherIcon => {
-                    let newWeatherIcon = weatherIcon.weather[0].main;
-                    switch (newWeatherIcon) {
-                        case "Clear":
-                            return `${sunnyLogo}`;
-                            break;
-                        case "Clouds":
-                            return `${cloudyLogo}`;
-                            break;
-                        case "Rain":
-                            return `${rainyLogo}`;
-                            break;
-                        case "Snow":
-                            return `${snowyLogo}`;
-                            break;                                                        
-                        default:
-                            return `${sunnyLogo}`;                       
-                    }
-                }),
+                weatherIcons: FiveDayForecast.map(
+                  icon => icons[icon.weather[0].main] || sunnyLogo
+                ),
                 temps: FiveDayForecast.map(temperature => {
                     return {
                         highTemp: temperature.main.temp_max,
@@ -94,44 +79,6 @@ class FiveDayForecast extends Component {
                     }
                 })
               });
-
-            // for (let i = 0; i < FiveDayForecast.length; i++) {
-            //     daysOfTheWeek[i] = FiveDayForecast[i].dt_txt.split('00:00:00').join('');
-
-            //     let weatherIcon = FiveDayForecast[i].weather[0].main;
-            //     switch (weatherIcon) {
-            //         case "Clear":
-            //             weatherIcons[i] = `${sunnyLogo}`;
-            //             break;
-            //         case "Clouds":
-            //             weatherIcons[i] = `${cloudyLogo}`;
-            //             break;
-            //         case "Rain":
-            //             weatherIcons[i] = `${rainyLogo}`;
-            //             break;
-            //         case "Snow":
-            //             weatherIcons[i] = `${snowyLogo}`;
-            //             break;                                                        
-            //         default:
-            //             weatherIcons[i] = `${sunnyLogo}`;                       
-            //     }
-            //     console.log(this.state.temps)
-            //     console.log(temps)
-            //     console.log(temps[i])
-            //     temps[i].highTemp = FiveDayForecast[i].main.temp_max;
-            //     temps[i].lowTemp = FiveDayForecast[i].main.temp_min; 
-            //     console.log(FiveDayForecast[i].main.temp_max)
-            //     console.log(FiveDayForecast[i].main.temp_min)
-            //     console.log(temps[i]);           
-            // }
-            // console.log('DATA AFTER COLLECTING IT:')
-            // console.log(daysOfTheWeek);
-            // console.log(weatherIcons);
-            // console.log(temps);
-            // // put this new data into state
-            // this.setState({
-            //     daysOfTheWeek, weatherIcons, temps
-            // })
         } catch(e) {
             console.log("Data didn't load", e);
         }       
@@ -170,7 +117,7 @@ class FiveDayForecast extends Component {
                             icon={this.state.weatherIcons[4]}
                             lowTemp={this.state.temps[4].lowTemp}
                             highTemp={this.state.temps[4].highTemp}
-                        />            */}
+                        />                          */}
                         <div className="clear"></div>
                     </div>
                     <button onClick={() => this.handleClick()}>Get Weather Forecast</button>

@@ -29,3 +29,6 @@
 .clear {
     clear: both;
 }
+h1, .app-description  {
+    text-align: center;
+}
