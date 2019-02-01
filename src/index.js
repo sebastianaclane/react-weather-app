@@ -103,7 +103,7 @@ class FiveDayForecast extends Component {
     }
 
     /**
-     * @description renders five SingleDayForecast componenets and a button that retrievs the weather data when clicked
+     * @description renders five SingleDayForecast components and a button that retrieves the weather data when clicked
     */
     render() {
         return (
